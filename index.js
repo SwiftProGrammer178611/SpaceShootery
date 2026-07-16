@@ -1,4 +1,5 @@
 const canvas = document.querySelector('canvas');
+const scoreEl = document.querySelector('#scoreEl')
 const c = canvas.getContext('2d');
 canvas.width = innerWidth;
 canvas.height = innerHeight;
@@ -14,6 +15,7 @@ class Player {
             y: 0
         }
         this.rotation = 0
+        this.opacity = 1
         const image = new Image();
         image.src = './spaceship.png'
         image.onload = () => {
@@ -30,10 +32,11 @@ class Player {
 
     draw() {
         c.save()
+        c.globalAlpha= thise.opacity
         c.translate(
             this.position.x + this.width / 2,
             this.position.y + this.height / 2
-        )
+        ) 
         c.rotate(this.rotation)
         c.translate(
             -this.position.x - this.width / 2,
@@ -231,10 +234,16 @@ const keys = {
 
 let frames = 0
 let randomInterval = Math.floor((Math.random() * 500) + 500)
+let game ={
+    over: false,
+    active: true
+}
+let score = 0
 console.log(randomInterval)
 const invaderProjectiles = []
 
 function animate() {
+    if(~game.active) return
     requestAnimationFrame(animate)
     c.fillStyle = 'black'
     c.fillRect(0, 0, canvas.width, canvas.height)
@@ -255,6 +264,16 @@ function animate() {
             invaderProjectile.position.x <= player.position.x + player.width
         ) {
             console.log("you lose")
+            setTimeout(()=>{
+                invaderProjectiles.splice(index,1)
+                player.opacity = 0
+                game.over = true
+            }, 0)
+
+            setTimeout(()=>{
+                game.active = false
+            },2000)
+
         }
     })
 
@@ -295,6 +314,8 @@ function animate() {
                         const projectileFound = projectiles.find(projectile2 => projectile2 === projectile)
 
                         if (invaderFound && projectileFound) {
+                            score += 100
+                            scoreEl.innerHTML = score
                             grid.invaders.splice(i, 1)
                             projectiles.splice(j, 1)
 
@@ -340,6 +361,7 @@ function animate() {
 animate()
 
 addEventListener('keydown', ({ key }) => {
+    if(game.over) return
     switch (key) {
         case 'a':
             console.log('left')
