@@ -57,6 +57,99 @@ class Player {
     }
 }
 
+class Invader{
+    constructor({position}) {
+        this.position = {
+            x:0,
+            y:0
+        }
+        this.velocity = {
+            x:0,
+            y:0
+        }
+        
+        const image = new Image();
+        image.src = './invader.png'
+        image.onload = () =>{
+            const scale = 1
+            this.image = image
+            this.width = width * scale
+            this.height = height * scale
+            this.position = {
+                x:position.x,
+                y: position.y
+            }
+        }
+    }
+
+    draw() {
+        c.drawImage(
+            this.image,
+            this.position.x,
+            this.position.y,
+            this.width,
+            this.height
+        )
+    }
+    update({velocity}) {  
+        if(this.image){
+            this.draw()
+            this.position.x += this.velocity.x
+            this.position.y += this.velocity.y
+        }
+    }
+}
+
+class Grid {
+    constructor() {
+        this.position = {
+            x:0,
+            y:0
+        }
+
+        this.velocity = {
+            x:0,
+            y:0
+        }
+
+        //grid of invaders
+        this.invaders = []
+
+        const rows = Math.floor(Math.random() *10+5)
+
+
+
+        const cols=Math.floor(
+            Math.random()*5+2
+        )
+
+        //full width of the grid
+
+        this.width = columns * 30
+
+        for(let x= 0; x<cols; x++){
+            for(let y=0; y<rows; y++){
+                this.invaders.push(new Invader({position: {
+                //30 is the w of the img
+                x:x*30,
+                y:y*30
+            }}))
+            }
+        }console.log(this.invaders)
+    }
+
+    update() {
+        this.position.x += velocity.x
+        this.position.y += velocity.y
+        this.velocity.y = 0
+
+        if(this.position.x + this.width > canvas.width || this.position.x <= 0){
+            this.velocity.x = -this.velocity.x
+            this.velocity.y = 30
+        }
+    }
+}
+
 class Projectile {
     constructor({ position, velocity }) {
         this.position = position
@@ -90,6 +183,7 @@ const projectiles = [new Projectile({
         y: -5,
     }
 })]
+const grids = [new Grid()]
 const keys = {
     a: {
         pressed: false
@@ -106,6 +200,7 @@ function animate() {
     c.fillStyle = 'black'
     c.fillRect(0, 0, canvas.width, canvas.height)
     player.update()
+    invader.update()
 
     projectiles.forEach((projectile,index) => {
 
@@ -117,6 +212,13 @@ function animate() {
         }else {
             projectile.update()
         }
+    })
+
+    grids.forEach(grid => {
+        grid.update()
+        grid.invaders.forEach(invader => {
+            invader.update({velocity = grid.velocity})
+        })
     })
 
     if (keys.a.pressed && player.position.x >= 0) {
