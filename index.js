@@ -50,13 +50,46 @@ class Player {
     }
 
     update() {
-        if(this.image) {
+        if (this.image) {
             this.draw()
             this.position.x += this.velocity.x
         }
     }
 }
+
+class Projectile {
+    constructor({ position, velocity }) {
+        this.position = position
+        this.velocity = velocity
+        this.radius = 3
+    }
+
+    draw() {
+        c.beginPath()
+        c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2)
+        c.fillStyle = 'red'
+        c.fill()
+        c.closePath()
+    }
+
+    update() {
+        this.draw()
+        this.position.x += this.velocity.x
+        this.position.y += this.velocity.y
+    }
+
+}
 const player = new Player()
+const projectiles = [new Projectile({
+    position: {
+        x: 300,
+        y: 300
+    },
+    velocity: {
+        x: 0,
+        y: -5,
+    }
+})]
 const keys = {
     a: {
         pressed: false
@@ -74,6 +107,18 @@ function animate() {
     c.fillRect(0, 0, canvas.width, canvas.height)
     player.update()
 
+    projectiles.forEach((projectile,index) => {
+
+        if(projectile.position.y + projectile.radius <= 0){
+            setTimeout(()=>{
+                projectiles.splice(index, 1)
+            },0)
+            
+        }else {
+            projectile.update()
+        }
+    })
+
     if (keys.a.pressed && player.position.x >= 0) {
         player.velocity.x = -7
         player.rotation = -0.15
@@ -86,7 +131,7 @@ function animate() {
     }
 }
 animate()
-addEventListener('keydown', ({key}) => {
+addEventListener('keydown', ({ key }) => {
     switch (key) {
         case 'a':
             console.log('left')
@@ -98,6 +143,16 @@ addEventListener('keydown', ({key}) => {
             break;
         case ' ':
             console.log('space')
+            projectiles.push(new Projectile({
+                position: {
+                    x: player.position.x + player.width/2,
+                    y: player.position.y
+                },
+                velocity: {
+                    x: 0,
+                    y: -5
+                }
+            }))
             keys.space.pressed = true;
             break
     }
