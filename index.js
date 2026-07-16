@@ -137,7 +137,6 @@ class Grid {
             }
         }console.log(this.invaders)
     }
-
     update() {
         this.position.x += velocity.x
         this.position.y += velocity.y
@@ -183,7 +182,7 @@ const projectiles = [new Projectile({
         y: -5,
     }
 })]
-const grids = [new Grid()]
+const grids = []
 const keys = {
     a: {
         pressed: false
@@ -195,6 +194,11 @@ const keys = {
         pressed: false
     }
 }
+
+let frames = 0
+let randomInterval = Math.floor((Math.random()*500) + 500)
+console.log(randomInterval)
+
 function animate() {
     requestAnimationFrame(animate)
     c.fillStyle = 'black'
@@ -231,8 +235,18 @@ function animate() {
         player.velocity.x = 0
         player.rotation = 0
     }
+    console.log(frames)
+    if(frames % randomInterval === 0){
+        grids.push(new Grid())
+        randomInterval = Math.floor(Math.random() * 500+500)
+        frames = 0
+        console.log(randomInterval)
+    }
+    frames++
 }
+
 animate()
+
 addEventListener('keydown', ({ key }) => {
     switch (key) {
         case 'a':
